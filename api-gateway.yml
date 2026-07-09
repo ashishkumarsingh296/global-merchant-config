@@ -6,3 +6,9 @@ spring:
     redis:
       host: redis
       port: 6379
+
+  application:
+    name: api-gateway
+
+  config:
+    import: "optional:configserver:http://config-server:8888"
