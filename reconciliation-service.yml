@@ -6,3 +6,10 @@ spring:
     url: jdbc:mysql://mysql:3306/gmps_reconciliation
     username: root
     password: root
+
+application:
+    name: reconciliation-service
+
+  config:
+    import: "optional:configserver:http://config-server:8888"
+
