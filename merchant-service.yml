@@ -1,20 +1,32 @@
 server:
   port: 8082
 
-spring:
-  datasource:
+datasource:
     url: jdbc:mysql://mysql:3306/gmps_merchant
     username: root
     password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
 
   data:
     redis:
       host: redis
       port: 6379
 
-  application:
-    name: merchant-service
+management:
+  tracing:
+    sampling:
+      probability: 1.0
 
-  config:
-    import: "optional:configserver:http://config-server:8888"
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},traceId=%X{traceId:-},spanId=%X{spanId:-}]"
 
