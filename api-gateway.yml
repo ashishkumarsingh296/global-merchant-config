@@ -2,13 +2,83 @@ server:
   port: 8080
 
 spring:
+  application:
+    name: api-gateway
+
   data:
     redis:
       host: redis
       port: 6379
 
-  application:
-    name: api-gateway
+  cloud:
+    gateway:
+      routes:
 
-  config:
-    import: "optional:configserver:http://config-server:8888"
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@userKeyResolver}"
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 1
+
+        - id: merchant-service
+          uri: lb://MERCHANT-SERVICE
+          predicates:
+            - Path=/api/merchants/**
+
+        - id: payment-service
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/payments/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@userKeyResolver}"
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 1
+
+        - id: settlement-service
+          uri: lb://SETTLEMENT-SERVICE
+          predicates:
+            - Path=/api/settlements/**
+
+        - id: notification-service
+          uri: lb://NOTIFICATION-SERVICE
+          predicates:
+            - Path=/api/notifications/**
+
+        - id: reconciliation-service
+          uri: lb://RECONCILIATION-SERVICE
+          predicates:
+            - Path=/api/reconciliation/**
+
+        - id: reporting-service
+          uri: lb://REPORTING-SERVICE
+          predicates:
+            - Path=/api/reports/**
+
+jwt:
+  secret: mySecretKeyForGlobalMerchantPaymentPlatform2026
+  expiration: 86400000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-server:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.security: DEBUG
+
+
