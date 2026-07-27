@@ -62,7 +62,7 @@ spring:
             - Path=/api/reports/**
 
 jwt:
-  secret: mySecretKeyForGlobalMerchantPaymentPlatform2026
+  secret:secret: ${JWT_SECRET}
   expiration: 86400000
 
 eureka:
